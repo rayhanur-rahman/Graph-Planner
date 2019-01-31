@@ -1,0 +1,10 @@
+1. the programs are all written in python 3. So, you need to install python version 3 on your system. For Debian based Linux, you can install it by this command: sudo apt install python3
+2. There is two python files: App.py and Utils.py. You only need to run App.py
+3. The command to run the code is: python3 App.py <algorithm> <mazefile>
+4. The value of the <algorithm> is BFS, DFS, BestFirst, AStar or AllPaths. Apply BFS for breadth first, DFS for depth first, BestFirst for greedy best first and AStar for a* search. Apply AllPaths if you want to generate all the unique paths.
+5. The value of the <mazefile> is the name of the input file you are trying to test.
+6. For example, one complete command can be like this: python3 App.py BFS 6x6Maze.txt
+7. The input file must be in the same directory where App.py and Utils.py are located
+8. The output file will be produced in the same directory. If the filename is maze.txt and algorithm name is BFS, then the output file will be maze-BFS-solution.txt
+9. In the output file, the path sequence is given followed by the total number of expanded states.
+10. There is a bash file that can run all the algorithms on all the maze input file provided for the assignment. In Linux, you can run it by this command: ./run.sh
