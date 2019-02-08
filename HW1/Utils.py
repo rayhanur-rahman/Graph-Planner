@@ -20,6 +20,7 @@ def getHeuristics(Cx, Cy, Gx, Gy, step, max, count):
 
     # find the node from the neighbours who has the minimum of horizontal + vertical movements to goal
     minHop = 1000000
+
     for option in options:
         hop_x = math.fabs(Gx - option[0]) / max
         hop_y = math.fabs(Gy - option[1]) / max
@@ -117,8 +118,7 @@ def BFS(nodes, filename):
     trail = Trail()
     trail.list.append(nodes[0])
     queue.append({
-        'trail': trail,
-        'etd': nodes[0].distance
+        'trail': trail
     })
 
     stateExplored = 0
@@ -145,9 +145,7 @@ def BFS(nodes, filename):
                 newTrail.list.append(item['node'])
                 newTrail.cost = poppedItem['trail'].cost + item['cost']
                 queue.append({
-                    'trail': newTrail,
-                    'etd': item['node'].distance
-                })
+                    'trail': newTrail                })
         if atLeastOneNeighbourFound == False:
             stateExplored -= 1
     file.write(f'State Explored: {stateExplored}')
@@ -219,7 +217,7 @@ def GFS(searchPath, explored, stateExplored, file):
     neighbours = [item for item in peekedItem.neighbours if item['node'] not in searchPath and item['node'] not in explored]
 
     for element in neighbours:
-        element['etd'] = element['node'].distance
+        element['etd'] = element['node'].distance # being greedy, just select the node which is estimated nearest
 
     neighbours = sorted(neighbours, key=lambda k: k['etd'])
 
@@ -261,8 +259,10 @@ def Astar(searchPath, explored, stateExplored, file):
     neighbours = [item for item in peekedItem.neighbours if item['node'] not in searchPath and item['node'] not in explored]
 
     for element in neighbours:
-        element['etd'] = element['node'].distance + element['cost']
+        # applying f(n) = g(n) + h(n)
+        element['etd'] = element['cost']+ element['node'].distance
 
+    # sort to find which has the lowest f(n)
     neighbours = sorted(neighbours, key=lambda k: k['etd'])
 
     if len(neighbours) > 0:

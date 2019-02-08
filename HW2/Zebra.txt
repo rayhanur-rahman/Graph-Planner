@@ -1,0 +1,48 @@
+VARS
+Englishman : 1 2 3 4 5
+Spaniard : 1 2 3 4 5
+Ukranian : 1 2 3 4 5
+Norwegian : 1 2 3 4 5
+Japanese : 1 2 3 4 5
+Fox : 1 2 3 4 5
+Dog : 1 2 3 4 5
+Zebra : 1 2 3 4 5
+Snail : 1 2 3 4 5
+Horse : 1 2 3 4 5
+Chesterfields : 1 2 3 4 5
+LuckyStrike : 1 2 3 4 5
+Parliaments : 1 2 3 4 5
+Winstons : 1 2 3 4 5
+Kools : 1 2 3 4 5
+Milk : 1 2 3 4 5
+Coffee : 1 2 3 4 5
+Tea : 1 2 3 4 5
+OrangeJuice : 1 2 3 4 5
+Water : 1 2 3 4 5
+Red : 1 2 3 4 5
+Green : 1 2 3 4 5
+Ivory : 1 2 3 4 5
+Yellow : 1 2 3 4 5
+Blue : 1 2 3 4 5
+ENDVARS
+CONSTRAINTS
+!= Englishman Spaniard Ukranian Norwegian Japanese
+!= Fox Dog Zebra Snail Horse
+!= Chesterfields LuckyStrike Parliaments Winstons Kools
+!= Milk Coffee Tea OrangeJuice Water
+!= Red Green Ivory Yellow Blue
+= Englishman Red
+= Spaniard Dog
+= Coffee Green
+= Ukranian Tea
+>1 Green Ivory
+= Winstons Snail
+= Yellow Kools
+= Milk 3
+= Norwegian 1
+<>1 Chesterfields Fox
+<>1 Kools Horse
+= LuckyStrike OrangeJuice
+= Japanese Parliaments
+<>1 Norwegian Blue
+ENDCONSTRAINTS
