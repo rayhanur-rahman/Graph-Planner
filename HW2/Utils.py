@@ -175,54 +175,46 @@ def filterSingleDomainNodes(nodes):
     return nodes, newNodes
 
 
-def backtrack(stack, nodes, size):
-    if len(stack) >= size:
-        print('bingo')
+def backtrack(stack, nodes, size, steps):
+    if len(stack) == size:
         return
 
-    if  len(stack) == 0:
-        print('bingo2')
-        return
+    if len(stack) <= size:
+        if len(nodes) > 0:
+            node = nodes[0]
+        else:
+            return
 
-    if len(nodes) > 0:
-        node = nodes[0]
-    else:
-        return
+        if len(node.domains) > 0:
+            node.value = node.domains.pop(0)
+            node.explored.append(node.value)
+        else:
+            node.domains.extend(node.explored)
+            node.explored = []
+            node.value = None
+            nodes.insert(0, stack.pop(-1))
+            if len(stack) <= size:
+                steps.append(0)
+                backtrack(stack, nodes, size, steps)
 
-    if len(node.domains) > 0:
-        node.value = node.domains.pop(0)
-        node.explored.append(node.value)
-    else:
-        node.domains.extend(node.explored)
-        node.explored = []
-        node.value = None
-        nodes.insert(0, stack.pop(-1))
-        backtrack(stack, nodes, size)
+        neighboursConsistent = True
+        for arc in node.arcs:
+            nextNode = arc['pair'][1]
+            order = arc['order']
+            if nextNode.value == None:
+                continue
+            if not isConsistent(node.value, nextNode.value, order):
+                neighboursConsistent = False
 
-    print(f'{len(stack)} {size} $$ {node.name}: {node.value} {node.domains} ### {node.explored}')
-    for item in stack:
-        print(f'{item.name}:{item.value}|', end='')
-    print('')
+        if neighboursConsistent:
+            stack.append(node)
+            if len(nodes) > 0: nodes.pop(0)
+        else:
+            node.value = None
 
-    if len(stack) == 3 and node.name == 'Horse' and node.value == 5:
-        hh = 1
-
-    neighboursConsistent = True
-    for arc in node.arcs:
-        nextNode = arc['pair'][1]
-        order = arc['order']
-        if nextNode.value == None:
-            continue
-        if not isConsistent(node.value, nextNode.value, order):
-            neighboursConsistent = False
-
-    if neighboursConsistent:
-        stack.append(node)
-        if len(nodes) > 0: nodes.pop(0)
-        backtrack(stack, nodes, size)
-    else:
-        node.value = None
-        backtrack(stack, nodes, size)
+        if len(stack) <= size:
+            #steps.append(0)
+            backtrack(stack, nodes, size, steps)
 
 
 def backtrackSearch(nodes):
@@ -233,11 +225,13 @@ def backtrackSearch(nodes):
     newNodes = response[1]
     newNodes = sorted(newNodes, key=lambda k: len(k.domains), reverse=False)
     size = len(newNodes)
-    newNodes[0].value = newNodes[0].domains.pop(0)
-    newNodes[0].explored.append(newNodes[0].value)
-    stack.append(newNodes[0])
-    newNodes.pop(0)
-    backtrack(stack, newNodes, size)
+    steps = []
+    steps.append(0)
+    backtrack(stack, newNodes, size, steps)
+    for node in nodes:
+        print(f'{node.name}:{node.value}|', end='')
+    print('')
+    print(f'number of steps: {len(steps)}')
     return nodes
 
 
@@ -270,19 +264,26 @@ def localSearch(nodes):
     ac3(nodes)
     filteredNodes = filterSingleDomainNodes(nodes)[1]
 
+    seed = random.randint(0, 99999)
+    random.seed(seed)
+    print(f'RPG seed is set to {seed}. The possibility to get to the solution depends on the seed for some problems.')
+    print(f'If you have not got to the solution, run it again a few times.')
     for node in nodes:
         node.value = node.domains[random.randint(0, len(node.domains) - 1)]
 
+    isSolutionFound = False
     for index in range(0, 20):
+        if isSolutionFound: break
         response = getNumberOfConflicts(nodes)
         conflictCount = response[0]
         conflictedArcs = response[1]
         if conflictCount == 0:
-            print('success')
+            print(f'success after {index} tries')
+            isSolutionFound = True
         else:
             if conflictCount < 20:
                 x = 1
-            print(f'searching locally: {conflictCount}')
+            # print(f'searching locally: {conflictCount}')
             node = None
             while (True):
                 arc = conflictedArcs[random.randint(0, len(conflictedArcs) - 1)]
@@ -298,10 +299,19 @@ def localSearch(nodes):
             for index in range(0, len(node.domains)):
                 node.value = node.domains[index]
                 conflictMatrix[index] = getNumberOfConflicts(nodes)[0]
+                newConflictedArcs = getNumberOfConflicts(nodes)[1]
                 if conflictMatrix[index] < min:
                     min = conflictMatrix[index]
                     minIndex = index
 
             node.value = node.domains[minIndex]
 
+    if isSolutionFound:
+        for node in nodes:
+            print(f'{node.name}:{node.value}|', end='')
+        print('')
+    else:
+        print(f'no solution found, found {conflictCount} conflicts')
+        for arc in newConflictedArcs:
+            print(f'({arc["pair"][0].name}, {arc["pair"][1].name})|', end='')
     return nodes
