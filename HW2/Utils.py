@@ -157,7 +157,7 @@ def ac3(nodes):
 
         if revise(arc):
             if len(node1.domains) == 0:
-                print('False')
+                print('No solution will be found')
                 continue
             for arc in node1.arcs:
                 if arc['pair'][1] != node2:
@@ -194,7 +194,7 @@ def backtrack(stack, nodes, size, steps):
             node.value = None
             nodes.insert(0, stack.pop(-1))
             if len(stack) <= size:
-                steps.append(0)
+                steps.append(1)
                 backtrack(stack, nodes, size, steps)
 
         neighboursConsistent = True
@@ -213,11 +213,11 @@ def backtrack(stack, nodes, size, steps):
             node.value = None
 
         if len(stack) <= size:
-            #steps.append(0)
+            steps.append(0)
             backtrack(stack, nodes, size, steps)
 
 
-def backtrackSearch(nodes):
+def backtrackSearch(nodes, file):
     applyDomainConstraints(nodes)
     ac3(nodes)
     stack = []
@@ -229,9 +229,14 @@ def backtrackSearch(nodes):
     steps.append(0)
     backtrack(stack, newNodes, size, steps)
     for node in nodes:
-        print(f'{node.name}:{node.value}|', end='')
-    print('')
-    print(f'number of steps: {len(steps)}')
+        # print(f'{node.name}:{node.value}|', end='')
+        file.write('{0}:{1}|'.format(node.name, node.value))
+    file.write('\n')
+    # print(f'number of total steps: {len(steps)}')
+    file.write('number of total steps: {0}\n'.format(len(steps)))
+    # print(f'number of backtracks: {sum(steps)}')
+    file.write('number of backtracks: {0}\n'.format(sum(steps)))
+    file.close()
     return nodes
 
 
@@ -259,31 +264,37 @@ def getNumberOfConflicts(nodes):
     return [numberOfConflicts, conflictedArcs]
 
 
-def localSearch(nodes):
+def localSearch(nodes, count, file):
+    if count == None: count = 20
     applyDomainConstraints(nodes)
     ac3(nodes)
     filteredNodes = filterSingleDomainNodes(nodes)[1]
 
     seed = random.randint(0, 99999)
     random.seed(seed)
-    print(f'RPG seed is set to {seed}. The possibility to get to the solution depends on the seed for some problems.')
-    print(f'If you have not got to the solution, run it again a few times.')
+    # print(f'RPG seed is set to {seed}. The possibility to get to the solution depends on the seed for some problems.')
+    # print(f'If you have not got to the solution, run it again a few times.')
+    file.write('PRNG seed is set to {0}. The possibility to get to the solution depends on the seed for some problems.\n'.format(seed))
+    file.write('If you have not got to the solution, run it again a few times.\n=========\n\n')
+
     for node in nodes:
         node.value = node.domains[random.randint(0, len(node.domains) - 1)]
 
     isSolutionFound = False
+    conflictCount = None
+    newConflictedArcs = None
     for index in range(0, 20):
         if isSolutionFound: break
         response = getNumberOfConflicts(nodes)
         conflictCount = response[0]
         conflictedArcs = response[1]
         if conflictCount == 0:
-            print(f'success after {index} tries')
+            # print(f'success after {index} tries')
+            file.write('success after {0} tries.\n'.format(index))
             isSolutionFound = True
         else:
-            if conflictCount < 20:
+            if conflictCount < count:
                 x = 1
-            # print(f'searching locally: {conflictCount}')
             node = None
             while (True):
                 arc = conflictedArcs[random.randint(0, len(conflictedArcs) - 1)]
@@ -308,10 +319,20 @@ def localSearch(nodes):
 
     if isSolutionFound:
         for node in nodes:
-            print(f'{node.name}:{node.value}|', end='')
-        print('')
+            # print(f'{node.name}:{node.value}|', end='')
+            file.write('{0}:{1}|'.format(node.name, node.value))
+        file.write('\n')
     else:
-        print(f'no solution found, found {conflictCount} conflicts')
+        # print(f'no solution found, found {conflictCount} conflicts')
+        file.write('no solution found, found {0} conflicts\n'.format(conflictCount))
+        file.write('final but incomplete assignment:\n')
+        for node in nodes:
+            # print(f'{node.name}:{node.value}|', end='')
+            file.write('{0}:{1}|'.format(node.name, node.value))
+        file.write('\n')
+        file.write('conflicted variables:\n')
         for arc in newConflictedArcs:
-            print(f'({arc["pair"][0].name}, {arc["pair"][1].name})|', end='')
+            # print(f'({arc["pair"][0].name}, {arc["pair"][1].name})|', end='')
+            file.write('({0}, {1})|'.format(arc["pair"][0].name, arc["pair"][1].name))
+    file.close()
     return nodes

@@ -27,9 +27,9 @@ Blue : 1 2 3 4 5
 ENDVARS
 CONSTRAINTS
 != Englishman Spaniard Ukranian Norwegian Japanese
-!= Fox Dog Zebra Snail Horse 
+!= Fox Dog Zebra Snail Horse
 != Chesterfields LuckyStrike Parliaments Winstons Kools
-!= Milk Coffee Tea OrangeJuice Water  
+!= Milk Coffee Tea OrangeJuice Water
 != Red Green Ivory Yellow Blue
 = Englishman Red
 = Spaniard Dog

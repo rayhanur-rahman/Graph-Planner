@@ -1,0 +1,9 @@
+1. the programs are all written in python 3. So, you need to install python version 3 on your system. For Debian based Linux, you can install it by this command: sudo apt install python3
+2. There is two python files: ConstraintSolver.py and Utils.py. You only need to run ConstraintSolver.py
+3. The command to run the code is: python3 ConstraintSolver.py <algorithm> [<cutoff>] <input>
+4. The value of the <algorithm> is BACKTRACK or MINCONFLICTS.
+5. The value of the <input> is the name of the input file you are trying to test.
+6. For example, one complete command can be like this: python3 ConstraintSolver.py BACKTRACK Zebra.txt
+7. The input file must be in the same directory where ConstraintSolver.py and Utils.py are located
+8. The output file will be produced in the same directory. If the filename is Zebra.txt and algorithm name is BACKTRACK, then the output file will be output-BACKTRACK-Zebra.txt
+9. There is a bash file that can run all the algorithms on all the input file provided for the assignment. In Linux, you can run it by this command: ./run.sh

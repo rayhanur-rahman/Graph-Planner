@@ -1,0 +1,16 @@
+VARS
+T : 1 2 3
+M : 1 2 3
+A : 1 2 3
+G : 1 2 3
+F : 1 2 3
+ENDVARS
+CONSTRAINTS
+!= M T
+!= A T 
+!= G T
+!= A M
+!= G A
+!= F A
+!= F G
+ENDCONSTRAINTS

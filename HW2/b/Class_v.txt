@@ -1,0 +1,15 @@
+VARS
+S1 : 3
+S2 : 2 3
+S3 : 1 2 3
+S4 : 1 2 3
+S5 : 2 3
+ENDVARS
+CONSTRAINTS
+!= S1 S2
+!= S2 S3
+!= S2 S4
+!= S3 S4
+!= S3 S5
+!= S4 S5
+ENDCONSTRAINTS
