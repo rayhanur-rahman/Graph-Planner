@@ -4,7 +4,7 @@ GOAL:+PacketAt(B),+CarAt(A),-CarAt(B),-PacketInCar
 
 ACTION:Load
 PRECOND:+PacketAt(A),-PacketInCar,+CarAt(A),-CarAt(B)
-EFFECT:+PacketInCar,-PacketAt(A)
+EFFECT:+PacketInCar,-PacketAt(A),+CarAt(A),-CarAt(B)
 
 ACTION:Drive(A,B)
 PRECOND:+CarAt(A),-CarAt(B)
@@ -20,4 +20,4 @@ EFFECT:+PacketAt(A)
 
 ACTION:Discharge
 PRECOND:+CarAt(B),+PacketInCar,-CarAt(A)
-EFFECT:+PacketAt(B),-PacketInCar
+EFFECT:+PacketAt(B),-PacketInCar,+CarAt(B),-CarAt(A)
