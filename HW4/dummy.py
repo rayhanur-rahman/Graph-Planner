@@ -56,3 +56,5 @@ for item in set:
         if checkForGoals(item, goals=['d', 'h', 'c']):
             for elem in item:
                 print(elem.name)
+
+

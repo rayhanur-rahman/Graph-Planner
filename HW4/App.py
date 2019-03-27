@@ -215,12 +215,68 @@ def is_action_pair_mutex(elem1, elem2):
         return False
 
 
-response = process_input('s1.txt')
+response = process_input('s2.txt')
 init = response[0]
 goal = response[1]
 states = response[2]
 actions = response[3]
 
+def extract_solution(init, goal, planning_graph, limit):
+    goal_states = extract_goals(goal, planning_graph, limit)
+    reverse_planning_graph = []
+
+    for item in goal_states:
+        reverse_planning_graph.append(item)
+
+    for reverese_index in range(limit, 0, -1):
+        states_in_current_layer = [x for x in reverse_planning_graph if
+                                   x.index == reverese_index and x.type == 'state']
+        actions_in_prior_layer = []
+        for state in states_in_current_layer:
+            causes = [x for x in state.children if x.type == 'action' and x.index == state.index - 1]
+            for cause in causes:
+                if cause not in actions_in_prior_layer:
+                    actions_in_prior_layer.append(cause)
+
+        solution_found = 0
+        options_actions = []
+        options_sets = []
+        powerset_of_actions = powerset(actions_in_prior_layer)
+        for actions in powerset_of_actions:
+            if len(actions) > 0:
+                if not check_mutex_in_set(actions):
+                    if check_if_actions_meets_goals(actions, goal_states):
+                        solution_found += 1
+                        reverse_planning_graph.extend(actions)
+                        states_in_prior_layer = []
+                        for action in actions:
+                            causes = [x for x in action.children if
+                                      x.type == 'state' and x.index == action.index]
+                            for cause in causes:
+                                if cause not in actions_in_prior_layer:
+                                    states_in_prior_layer.append(cause)
+                        reverse_planning_graph.extend(states_in_prior_layer)
+                        break
+
+        if solution_found > 0:
+            goal_states = [x for x in reverse_planning_graph if
+                           x.type == 'state' and x.index == reverese_index - 1]
+
+            count = 0
+            for item in init:
+                init_found = False
+                for goal in goal_states:
+                    if (item.name == goal.name and item.truth_value == goal.truth_value):
+                        init_found = True
+                if init_found:
+                    count += 1
+
+            if count == len(init) and reverese_index == 1:
+                return [True, reverse_planning_graph]
+            else:
+                continue
+        else:
+            return [False, reverse_planning_graph]
 
 
 def generate_planner(init, goal, states, actions):
@@ -304,71 +360,25 @@ def generate_planner(init, goal, states, actions):
         if is_goal_reached(goal, planning_graph, index):
             limit = index
             print('goal reached')
-            break
+            response = extract_solution(init, goal, planning_graph, limit)
+            if response[0]:
+                reverse_planning_graph = response[1]
 
+                for i in range(0,limit):
+                    print(f'layer {i}')
+                    for node in reverse_planning_graph:
+                        if not node.name.startswith('no-op') and node.type == 'action' and node.index == i:
+                            print(node.name)
+
+                break
+            else:
+                continue
         else:
             if len(states_in_current_layer) == len(states_in_prior_layer) and \
                 len(actions_in_current_layer) == len(actions_in_prior_layer):
                 limit = index
                 print('no goal reached')
                 break
-
-    if is_goal_reached(goal, planning_graph, limit):
-        goal_states = extract_goals(goal, planning_graph, limit)
-        reverse_planning_graph = []
-        solution_found = False
-
-        for item in goal_states:
-            reverse_planning_graph.append(item)
-
-        for reverese_index in range(limit, 0, -1):
-            states_in_current_layer = [x for x in reverse_planning_graph if x.index == reverese_index and x.type == 'state']
-            actions_in_prior_layer = []
-            for state in states_in_current_layer:
-                causes = [x for x in state.children if x.type == 'action' and x.index == state.index - 1]
-                for cause in causes:
-                    if cause not in actions_in_prior_layer:
-                        actions_in_prior_layer.append(cause)
-
-            powerset_of_actions = powerset(actions_in_prior_layer)
-            for actions in powerset_of_actions:
-                if len(actions) > 0:
-                    if not check_mutex_in_set(actions):
-                        if check_if_actions_meets_goals(actions, goal_states):
-                            solution_found = True
-                            reverse_planning_graph.extend(actions)
-                            states_in_prior_layer = []
-                            for action in actions:
-                                causes = [x for x in action.children if
-                                          x.type == 'state' and x.index == action.index]
-                                for cause in causes:
-                                    if cause not in actions_in_prior_layer:
-                                        states_in_prior_layer.append(cause)
-                            reverse_planning_graph.extend(states_in_prior_layer)
-                            break
-
-            if solution_found:
-                goal_states = [x for x in reverse_planning_graph if
-                                          x.type == 'state' and x.index == reverese_index - 1]
-
-                count = 0
-                for item in init:
-                    init_found = False
-                    for goal in goal_states:
-                        if (item.name == goal.name and item.truth_value == goal.truth_value):
-                            init_found = True
-                    if init_found:
-                        count += 1
-
-                if count == len(init):
-                    print('yay')
-                    break
-                else:
-                    continue
-            else:
-                break
-
-
 
     # for i in range(0,limit+1):
     #     print(i)
