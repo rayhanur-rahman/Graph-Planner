@@ -51,10 +51,10 @@ clean.goals.extend(['c'])
 
 set = powerset([noh, nod, nocl, eat, clean])
 
-for item in set:
-    if not checkMutexInSet(item):
-        if checkForGoals(item, goals=['d', 'h', 'c']):
-            for elem in item:
-                print(elem.name)
+xyz = []
 
+for x in powerset([1,2,3]):
+    xyz.append(x)
 
+for x in reversed(xyz):
+    print(x)
