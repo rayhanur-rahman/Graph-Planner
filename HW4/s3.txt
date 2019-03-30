@@ -11,7 +11,7 @@ PRECOND:+Quiet
 EFFECT:+Present
 
 ACTION:Carry
-PRECOND:
+PRECOND:+Garbage
 EFFECT:-Garbage,-Cleanhands
 
 ACTION:Crush

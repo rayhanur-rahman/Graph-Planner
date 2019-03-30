@@ -239,11 +239,7 @@ def extract_solution(init, goal, planning_graph, limit):
                     actions_in_prior_layer.append(cause)
 
         solution_found = 0
-        options_actions = []
-        options_sets = []
         powerset_of_actions = powerset(actions_in_prior_layer)
-
-
         for actions in powerset_of_actions:
             if len(actions) > 0:
                 if not check_mutex_in_set(actions):
@@ -279,7 +275,6 @@ def extract_solution(init, goal, planning_graph, limit):
                 continue
         else:
             return [False, reverse_planning_graph]
-
 
 def generate_planner(init, goal, states, actions):
     MAX_DEPTH = 9999
