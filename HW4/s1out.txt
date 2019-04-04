@@ -1,0 +1,233 @@
+############################
+----------------------------
+|List of States and Actions|
+----------------------------
+States:
++Hungry
++CleanTable
+-Hungry
+-Dinner
++Dinner
+-CleanTable
+Actions:
+Cook
+Eat
+Clean
+############################
+Success
+layer 0
+Cook
+layer 1
+Eat
+layer 2
+Clean
+#################################################
+-------------------------------------------------
+|List of States, Actions and Mutex in each layer|
+-------------------------------------------------
+Layer 0:
+
+states:
++Hungry
++CleanTable
+
+actions:
+no-op-0@+Hungry
+no-op-0@+CleanTable
+Cook
+
+
+Layer 1:
+
+states:
++Hungry
++CleanTable
++Dinner
+
+actions:
+no-op-1@+Hungry
+mutex: Eat
+no-op-1@+CleanTable
+mutex: Eat
+no-op-1@+Dinner
+mutex: Eat
+Cook
+mutex: Eat
+Eat
+mutex: no-op-1@+Hungry
+mutex: no-op-1@+CleanTable
+mutex: no-op-1@+Dinner
+mutex: Cook
+
+
+Layer 2:
+
+states:
++Hungry
+mutex: -Hungry
+mutex: -CleanTable
+mutex: -Dinner
++CleanTable
+mutex: -Hungry
+mutex: -CleanTable
+mutex: -Dinner
++Dinner
+mutex: -Hungry
+mutex: -CleanTable
+mutex: -Dinner
+-Hungry
+mutex: +Hungry
+mutex: +CleanTable
+mutex: +Dinner
+-CleanTable
+mutex: +Hungry
+mutex: +CleanTable
+mutex: +Dinner
+-Dinner
+mutex: +Hungry
+mutex: +CleanTable
+mutex: +Dinner
+
+actions:
+no-op-2@+Hungry
+mutex: no-op-2@-Hungry
+mutex: no-op-2@-CleanTable
+mutex: no-op-2@-Dinner
+mutex: Eat
+mutex: Clean
+no-op-2@+CleanTable
+mutex: no-op-2@-Hungry
+mutex: no-op-2@-CleanTable
+mutex: no-op-2@-Dinner
+mutex: Eat
+mutex: Clean
+no-op-2@+Dinner
+mutex: no-op-2@-Hungry
+mutex: no-op-2@-CleanTable
+mutex: no-op-2@-Dinner
+mutex: Eat
+mutex: Clean
+no-op-2@-Hungry
+mutex: no-op-2@+Hungry
+mutex: no-op-2@+CleanTable
+mutex: no-op-2@+Dinner
+mutex: Cook
+mutex: Eat
+no-op-2@-CleanTable
+mutex: no-op-2@+Hungry
+mutex: no-op-2@+CleanTable
+mutex: no-op-2@+Dinner
+mutex: Cook
+mutex: Eat
+mutex: Clean
+no-op-2@-Dinner
+mutex: no-op-2@+Hungry
+mutex: no-op-2@+CleanTable
+mutex: no-op-2@+Dinner
+mutex: Cook
+mutex: Eat
+Cook
+mutex: no-op-2@-Hungry
+mutex: no-op-2@-CleanTable
+mutex: no-op-2@-Dinner
+mutex: Eat
+mutex: Clean
+Eat
+mutex: no-op-2@+Hungry
+mutex: no-op-2@+CleanTable
+mutex: no-op-2@+Dinner
+mutex: no-op-2@-Hungry
+mutex: no-op-2@-CleanTable
+mutex: no-op-2@-Dinner
+mutex: Cook
+mutex: Clean
+Clean
+mutex: no-op-2@+Hungry
+mutex: no-op-2@+CleanTable
+mutex: no-op-2@+Dinner
+mutex: no-op-2@-CleanTable
+mutex: Cook
+mutex: Eat
+
+
+Layer 3:
+
+states:
++Hungry
+mutex: -Hungry
+mutex: -CleanTable
+mutex: -Dinner
++CleanTable
+mutex: -CleanTable
++Dinner
+mutex: -Hungry
+mutex: -CleanTable
+mutex: -Dinner
+-Hungry
+mutex: +Hungry
+mutex: +Dinner
+-CleanTable
+mutex: +Hungry
+mutex: +CleanTable
+mutex: +Dinner
+-Dinner
+mutex: +Hungry
+mutex: +Dinner
+
+actions:
+no-op-3@+Hungry
+mutex: no-op-3@-Hungry
+mutex: no-op-3@-CleanTable
+mutex: no-op-3@-Dinner
+mutex: Eat
+mutex: Clean
+no-op-3@+CleanTable
+mutex: no-op-3@-CleanTable
+mutex: Eat
+mutex: Clean
+no-op-3@+Dinner
+mutex: no-op-3@-Hungry
+mutex: no-op-3@-CleanTable
+mutex: no-op-3@-Dinner
+mutex: Eat
+mutex: Clean
+no-op-3@-Hungry
+mutex: no-op-3@+Hungry
+mutex: no-op-3@+Dinner
+mutex: Eat
+no-op-3@-CleanTable
+mutex: no-op-3@+Hungry
+mutex: no-op-3@+CleanTable
+mutex: no-op-3@+Dinner
+mutex: Cook
+mutex: Eat
+mutex: Clean
+no-op-3@-Dinner
+mutex: no-op-3@+Hungry
+mutex: no-op-3@+Dinner
+mutex: Cook
+mutex: Eat
+Cook
+mutex: no-op-3@-CleanTable
+mutex: no-op-3@-Dinner
+mutex: Eat
+mutex: Clean
+Eat
+mutex: no-op-3@+Hungry
+mutex: no-op-3@+CleanTable
+mutex: no-op-3@+Dinner
+mutex: no-op-3@-Hungry
+mutex: no-op-3@-CleanTable
+mutex: no-op-3@-Dinner
+mutex: Cook
+mutex: Clean
+Clean
+mutex: no-op-3@+Hungry
+mutex: no-op-3@+CleanTable
+mutex: no-op-3@+Dinner
+mutex: no-op-3@-CleanTable
+mutex: Cook
+mutex: Eat
+
+
+#################################################

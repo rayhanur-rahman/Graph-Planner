@@ -1,0 +1,618 @@
+############################
+----------------------------
+|List of States and Actions|
+----------------------------
+States:
+-PacketAt(A)
++CarAt(B)
+-CarAt(A)
+-PacketInCar
++PacketAt(B)
++CarAt(A)
+-CarAt(B)
++PacketAt(A)
++PacketInCar
+Actions:
+Load
+Drive(A,B)
+Drive(B,A)
+Produce
+Discharge
+############################
+Success
+layer 0
+Produce
+Drive(B,A)
+layer 1
+Load
+layer 2
+Drive(A,B)
+layer 3
+Discharge
+layer 4
+Drive(B,A)
+#################################################
+-------------------------------------------------
+|List of States, Actions and Mutex in each layer|
+-------------------------------------------------
+Layer 0:
+
+states:
+-PacketAt(A)
++CarAt(B)
+-CarAt(A)
+-PacketInCar
+
+actions:
+no-op-0@-PacketAt(A)
+mutex: Produce
+no-op-0@+CarAt(B)
+mutex: Drive(B,A)
+no-op-0@-CarAt(A)
+mutex: Drive(B,A)
+no-op-0@-PacketInCar
+Drive(B,A)
+mutex: no-op-0@+CarAt(B)
+mutex: no-op-0@-CarAt(A)
+Produce
+mutex: no-op-0@-PacketAt(A)
+
+
+Layer 1:
+
+states:
+-PacketAt(A)
+mutex: +PacketAt(A)
++CarAt(B)
+mutex: +CarAt(A)
+mutex: -CarAt(B)
+-CarAt(A)
+mutex: +CarAt(A)
+mutex: -CarAt(B)
+-PacketInCar
++CarAt(A)
+mutex: +CarAt(B)
+mutex: -CarAt(A)
+-CarAt(B)
+mutex: +CarAt(B)
+mutex: -CarAt(A)
++PacketAt(A)
+mutex: -PacketAt(A)
+
+actions:
+no-op-1@-PacketAt(A)
+mutex: no-op-1@+PacketAt(A)
+mutex: Load
+mutex: Produce
+no-op-1@+CarAt(B)
+mutex: no-op-1@+CarAt(A)
+mutex: no-op-1@-CarAt(B)
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+no-op-1@-CarAt(A)
+mutex: no-op-1@+CarAt(A)
+mutex: no-op-1@-CarAt(B)
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+no-op-1@-PacketInCar
+mutex: Load
+no-op-1@+CarAt(A)
+mutex: no-op-1@+CarAt(B)
+mutex: no-op-1@-CarAt(A)
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+no-op-1@-CarAt(B)
+mutex: no-op-1@+CarAt(B)
+mutex: no-op-1@-CarAt(A)
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+no-op-1@+PacketAt(A)
+mutex: no-op-1@-PacketAt(A)
+mutex: Load
+mutex: Produce
+Load
+mutex: no-op-1@-PacketAt(A)
+mutex: no-op-1@+CarAt(B)
+mutex: no-op-1@-CarAt(A)
+mutex: no-op-1@-PacketInCar
+mutex: no-op-1@+PacketAt(A)
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Produce
+Drive(A,B)
+mutex: no-op-1@+CarAt(B)
+mutex: no-op-1@-CarAt(A)
+mutex: no-op-1@+CarAt(A)
+mutex: no-op-1@-CarAt(B)
+mutex: Load
+mutex: Drive(B,A)
+Drive(B,A)
+mutex: no-op-1@+CarAt(B)
+mutex: no-op-1@-CarAt(A)
+mutex: no-op-1@+CarAt(A)
+mutex: no-op-1@-CarAt(B)
+mutex: Load
+mutex: Drive(A,B)
+Produce
+mutex: no-op-1@-PacketAt(A)
+mutex: no-op-1@+PacketAt(A)
+mutex: Load
+
+
+Layer 2:
+
+states:
+-PacketAt(A)
+mutex: +PacketAt(A)
++CarAt(B)
+mutex: +CarAt(A)
+mutex: -CarAt(B)
+mutex: +PacketInCar
+-CarAt(A)
+mutex: +CarAt(A)
+mutex: -CarAt(B)
+mutex: +PacketInCar
+-PacketInCar
+mutex: +PacketInCar
++CarAt(A)
+mutex: +CarAt(B)
+mutex: -CarAt(A)
+-CarAt(B)
+mutex: +CarAt(B)
+mutex: -CarAt(A)
++PacketAt(A)
+mutex: -PacketAt(A)
+mutex: +PacketInCar
++PacketInCar
+mutex: +CarAt(B)
+mutex: -CarAt(A)
+mutex: -PacketInCar
+mutex: +PacketAt(A)
+
+actions:
+no-op-2@-PacketAt(A)
+mutex: no-op-2@+PacketAt(A)
+mutex: Load
+mutex: Produce
+no-op-2@+CarAt(B)
+mutex: no-op-2@+CarAt(A)
+mutex: no-op-2@-CarAt(B)
+mutex: no-op-2@+PacketInCar
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Discharge
+no-op-2@-CarAt(A)
+mutex: no-op-2@+CarAt(A)
+mutex: no-op-2@-CarAt(B)
+mutex: no-op-2@+PacketInCar
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Discharge
+no-op-2@-PacketInCar
+mutex: no-op-2@+PacketInCar
+mutex: Load
+mutex: Discharge
+no-op-2@+CarAt(A)
+mutex: no-op-2@+CarAt(B)
+mutex: no-op-2@-CarAt(A)
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Discharge
+no-op-2@-CarAt(B)
+mutex: no-op-2@+CarAt(B)
+mutex: no-op-2@-CarAt(A)
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Discharge
+no-op-2@+PacketAt(A)
+mutex: no-op-2@-PacketAt(A)
+mutex: no-op-2@+PacketInCar
+mutex: Load
+mutex: Produce
+mutex: Discharge
+no-op-2@+PacketInCar
+mutex: no-op-2@+CarAt(B)
+mutex: no-op-2@-CarAt(A)
+mutex: no-op-2@-PacketInCar
+mutex: no-op-2@+PacketAt(A)
+mutex: Load
+mutex: Drive(B,A)
+mutex: Discharge
+Load
+mutex: no-op-2@-PacketAt(A)
+mutex: no-op-2@+CarAt(B)
+mutex: no-op-2@-CarAt(A)
+mutex: no-op-2@-PacketInCar
+mutex: no-op-2@+PacketAt(A)
+mutex: no-op-2@+PacketInCar
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Produce
+mutex: Discharge
+Drive(A,B)
+mutex: no-op-2@+CarAt(B)
+mutex: no-op-2@-CarAt(A)
+mutex: no-op-2@+CarAt(A)
+mutex: no-op-2@-CarAt(B)
+mutex: Load
+mutex: Drive(B,A)
+mutex: Discharge
+Drive(B,A)
+mutex: no-op-2@+CarAt(B)
+mutex: no-op-2@-CarAt(A)
+mutex: no-op-2@+CarAt(A)
+mutex: no-op-2@-CarAt(B)
+mutex: no-op-2@+PacketInCar
+mutex: Load
+mutex: Drive(A,B)
+mutex: Discharge
+Produce
+mutex: no-op-2@-PacketAt(A)
+mutex: no-op-2@+PacketAt(A)
+mutex: Load
+Discharge
+mutex: no-op-2@+CarAt(B)
+mutex: no-op-2@-CarAt(A)
+mutex: no-op-2@-PacketInCar
+mutex: no-op-2@+CarAt(A)
+mutex: no-op-2@-CarAt(B)
+mutex: no-op-2@+PacketAt(A)
+mutex: no-op-2@+PacketInCar
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+
+
+Layer 3:
+
+states:
+-PacketAt(A)
+mutex: +PacketAt(A)
++CarAt(B)
+mutex: +CarAt(A)
+mutex: -CarAt(B)
+-CarAt(A)
+mutex: +CarAt(A)
+mutex: -CarAt(B)
+-PacketInCar
+mutex: +PacketInCar
++CarAt(A)
+mutex: +CarAt(B)
+mutex: -CarAt(A)
+mutex: +PacketAt(B)
+-CarAt(B)
+mutex: +CarAt(B)
+mutex: -CarAt(A)
+mutex: +PacketAt(B)
++PacketAt(A)
+mutex: -PacketAt(A)
++PacketInCar
+mutex: -PacketInCar
+mutex: +PacketAt(B)
++PacketAt(B)
+mutex: +CarAt(A)
+mutex: -CarAt(B)
+mutex: +PacketInCar
+
+actions:
+no-op-3@-PacketAt(A)
+mutex: no-op-3@+PacketAt(A)
+mutex: Load
+mutex: Produce
+no-op-3@+CarAt(B)
+mutex: no-op-3@+CarAt(A)
+mutex: no-op-3@-CarAt(B)
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+no-op-3@-CarAt(A)
+mutex: no-op-3@+CarAt(A)
+mutex: no-op-3@-CarAt(B)
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+no-op-3@-PacketInCar
+mutex: no-op-3@+PacketInCar
+mutex: Load
+mutex: Discharge
+no-op-3@+CarAt(A)
+mutex: no-op-3@+CarAt(B)
+mutex: no-op-3@-CarAt(A)
+mutex: no-op-3@+PacketAt(B)
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Discharge
+no-op-3@-CarAt(B)
+mutex: no-op-3@+CarAt(B)
+mutex: no-op-3@-CarAt(A)
+mutex: no-op-3@+PacketAt(B)
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Discharge
+no-op-3@+PacketAt(A)
+mutex: no-op-3@-PacketAt(A)
+mutex: Load
+mutex: Produce
+no-op-3@+PacketInCar
+mutex: no-op-3@-PacketInCar
+mutex: no-op-3@+PacketAt(B)
+mutex: Load
+mutex: Discharge
+no-op-3@+PacketAt(B)
+mutex: no-op-3@+CarAt(A)
+mutex: no-op-3@-CarAt(B)
+mutex: no-op-3@+PacketInCar
+mutex: Load
+mutex: Drive(A,B)
+mutex: Discharge
+Load
+mutex: no-op-3@-PacketAt(A)
+mutex: no-op-3@+CarAt(B)
+mutex: no-op-3@-CarAt(A)
+mutex: no-op-3@-PacketInCar
+mutex: no-op-3@+PacketAt(A)
+mutex: no-op-3@+PacketInCar
+mutex: no-op-3@+PacketAt(B)
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Produce
+mutex: Discharge
+Drive(A,B)
+mutex: no-op-3@+CarAt(B)
+mutex: no-op-3@-CarAt(A)
+mutex: no-op-3@+CarAt(A)
+mutex: no-op-3@-CarAt(B)
+mutex: no-op-3@+PacketAt(B)
+mutex: Load
+mutex: Drive(B,A)
+mutex: Discharge
+Drive(B,A)
+mutex: no-op-3@+CarAt(B)
+mutex: no-op-3@-CarAt(A)
+mutex: no-op-3@+CarAt(A)
+mutex: no-op-3@-CarAt(B)
+mutex: Load
+mutex: Drive(A,B)
+mutex: Discharge
+Produce
+mutex: no-op-3@-PacketAt(A)
+mutex: no-op-3@+PacketAt(A)
+mutex: Load
+Discharge
+mutex: no-op-3@-PacketInCar
+mutex: no-op-3@+CarAt(A)
+mutex: no-op-3@-CarAt(B)
+mutex: no-op-3@+PacketInCar
+mutex: no-op-3@+PacketAt(B)
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+
+
+Layer 4:
+
+states:
+-PacketAt(A)
+mutex: +PacketAt(A)
++CarAt(B)
+mutex: +CarAt(A)
+mutex: -CarAt(B)
+-CarAt(A)
+mutex: +CarAt(A)
+mutex: -CarAt(B)
+-PacketInCar
+mutex: +PacketInCar
++CarAt(A)
+mutex: +CarAt(B)
+mutex: -CarAt(A)
+-CarAt(B)
+mutex: +CarAt(B)
+mutex: -CarAt(A)
++PacketAt(A)
+mutex: -PacketAt(A)
++PacketInCar
+mutex: -PacketInCar
+mutex: +PacketAt(B)
++PacketAt(B)
+mutex: +PacketInCar
+
+actions:
+no-op-4@-PacketAt(A)
+mutex: no-op-4@+PacketAt(A)
+mutex: Load
+mutex: Produce
+no-op-4@+CarAt(B)
+mutex: no-op-4@+CarAt(A)
+mutex: no-op-4@-CarAt(B)
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+no-op-4@-CarAt(A)
+mutex: no-op-4@+CarAt(A)
+mutex: no-op-4@-CarAt(B)
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+no-op-4@-PacketInCar
+mutex: no-op-4@+PacketInCar
+mutex: Load
+mutex: Discharge
+no-op-4@+CarAt(A)
+mutex: no-op-4@+CarAt(B)
+mutex: no-op-4@-CarAt(A)
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Discharge
+no-op-4@-CarAt(B)
+mutex: no-op-4@+CarAt(B)
+mutex: no-op-4@-CarAt(A)
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Discharge
+no-op-4@+PacketAt(A)
+mutex: no-op-4@-PacketAt(A)
+mutex: Load
+mutex: Produce
+no-op-4@+PacketInCar
+mutex: no-op-4@-PacketInCar
+mutex: no-op-4@+PacketAt(B)
+mutex: Load
+mutex: Discharge
+no-op-4@+PacketAt(B)
+mutex: no-op-4@+PacketInCar
+mutex: Discharge
+Load
+mutex: no-op-4@-PacketAt(A)
+mutex: no-op-4@+CarAt(B)
+mutex: no-op-4@-CarAt(A)
+mutex: no-op-4@-PacketInCar
+mutex: no-op-4@+PacketAt(A)
+mutex: no-op-4@+PacketInCar
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Produce
+mutex: Discharge
+Drive(A,B)
+mutex: no-op-4@+CarAt(B)
+mutex: no-op-4@-CarAt(A)
+mutex: no-op-4@+CarAt(A)
+mutex: no-op-4@-CarAt(B)
+mutex: Load
+mutex: Drive(B,A)
+mutex: Discharge
+Drive(B,A)
+mutex: no-op-4@+CarAt(B)
+mutex: no-op-4@-CarAt(A)
+mutex: no-op-4@+CarAt(A)
+mutex: no-op-4@-CarAt(B)
+mutex: Load
+mutex: Drive(A,B)
+mutex: Discharge
+Produce
+mutex: no-op-4@-PacketAt(A)
+mutex: no-op-4@+PacketAt(A)
+mutex: Load
+Discharge
+mutex: no-op-4@-PacketInCar
+mutex: no-op-4@+CarAt(A)
+mutex: no-op-4@-CarAt(B)
+mutex: no-op-4@+PacketInCar
+mutex: no-op-4@+PacketAt(B)
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+
+
+Layer 5:
+
+states:
+-PacketAt(A)
+mutex: +PacketAt(A)
++CarAt(B)
+mutex: +CarAt(A)
+mutex: -CarAt(B)
+-CarAt(A)
+mutex: +CarAt(A)
+mutex: -CarAt(B)
+-PacketInCar
+mutex: +PacketInCar
++CarAt(A)
+mutex: +CarAt(B)
+mutex: -CarAt(A)
+-CarAt(B)
+mutex: +CarAt(B)
+mutex: -CarAt(A)
++PacketAt(A)
+mutex: -PacketAt(A)
++PacketInCar
+mutex: -PacketInCar
++PacketAt(B)
+
+actions:
+no-op-5@-PacketAt(A)
+mutex: no-op-5@+PacketAt(A)
+mutex: Load
+mutex: Produce
+no-op-5@+CarAt(B)
+mutex: no-op-5@+CarAt(A)
+mutex: no-op-5@-CarAt(B)
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+no-op-5@-CarAt(A)
+mutex: no-op-5@+CarAt(A)
+mutex: no-op-5@-CarAt(B)
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+no-op-5@-PacketInCar
+mutex: no-op-5@+PacketInCar
+mutex: Load
+mutex: Discharge
+no-op-5@+CarAt(A)
+mutex: no-op-5@+CarAt(B)
+mutex: no-op-5@-CarAt(A)
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Discharge
+no-op-5@-CarAt(B)
+mutex: no-op-5@+CarAt(B)
+mutex: no-op-5@-CarAt(A)
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Discharge
+no-op-5@+PacketAt(A)
+mutex: no-op-5@-PacketAt(A)
+mutex: Load
+mutex: Produce
+no-op-5@+PacketInCar
+mutex: no-op-5@-PacketInCar
+mutex: Load
+mutex: Discharge
+no-op-5@+PacketAt(B)
+Load
+mutex: no-op-5@-PacketAt(A)
+mutex: no-op-5@+CarAt(B)
+mutex: no-op-5@-CarAt(A)
+mutex: no-op-5@-PacketInCar
+mutex: no-op-5@+PacketAt(A)
+mutex: no-op-5@+PacketInCar
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+mutex: Produce
+mutex: Discharge
+Drive(A,B)
+mutex: no-op-5@+CarAt(B)
+mutex: no-op-5@-CarAt(A)
+mutex: no-op-5@+CarAt(A)
+mutex: no-op-5@-CarAt(B)
+mutex: Load
+mutex: Drive(B,A)
+mutex: Discharge
+Drive(B,A)
+mutex: no-op-5@+CarAt(B)
+mutex: no-op-5@-CarAt(A)
+mutex: no-op-5@+CarAt(A)
+mutex: no-op-5@-CarAt(B)
+mutex: Load
+mutex: Drive(A,B)
+mutex: Discharge
+Produce
+mutex: no-op-5@-PacketAt(A)
+mutex: no-op-5@+PacketAt(A)
+mutex: Load
+Discharge
+mutex: no-op-5@-PacketInCar
+mutex: no-op-5@+CarAt(A)
+mutex: no-op-5@-CarAt(B)
+mutex: no-op-5@+PacketInCar
+mutex: Load
+mutex: Drive(A,B)
+mutex: Drive(B,A)
+
+
+#################################################
