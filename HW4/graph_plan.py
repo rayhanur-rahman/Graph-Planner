@@ -415,7 +415,7 @@ def generate_planner(init, goal, actions):
             state_node.truth_value = item.truth_value
             planning_graph.append(state_node)
 
-            action_node = Node(index, 'action', f'no-op-{index}@{item.truth_value}{item.name}')
+            action_node = Node(index, 'action', 'no-op-{0}@{1}{2}'.format(index, item.truth_value, item.name))
             state_node.children.append(action_node)
             action_node.children.append(state_node)
             item.children.append(action_node)
@@ -525,23 +525,24 @@ def generate_planner(init, goal, actions):
     print('|List of States, Actions and Mutex in each layer|')
     print('-------------------------------------------------')
     for i in range(0,limit+1):
-        # print(f'Layer {i}:\n')
-        print('Layer {0}:\n'.format(i))
+        print('\nLayer {0}:\n'.format(i))
         print('states:')
         for node in planning_graph:
             if node.index == i and node.type == 'state':
-                print(f'name: {node.truth_value}{node.name}', end=' | mutex: ')
+                print('name: {0}{1}'.format(node.truth_value, node.name), end=' | mutexes: ')
                 for item in node.mutex:
-                    print(f'{item.truth_value}{item.name}', end=', ')
+                    print('{0}{1}'.format(item.truth_value, item.name), end=', ')
+                print('| total: {0}'.format(len(node.mutex)), end='')
                 print('')
         print('\nactions:')
         for node in planning_graph:
             if node.index == i and node.type == 'action':
-                print(f'name: {node.name}', end=' | mutex: ')
+                print('name: {0}'.format(node.name), end=' | mutexes: ')
                 for item in node.mutex:
-                    print(f'{item.name}', end=', ')
+                    print('{0}'.format(item.name), end=', ')
+                print('| total: {0}'.format(len(node.mutex)), end='')
                 print('')
-        print('\n')
+        print('********************************************')
     print('#################################################')
     return reverse_planning_graph, limit
 
@@ -557,30 +558,41 @@ if len(sys.argv) == 2:
     print('----------------------------')
     print('|List of States and Actions|')
     print('----------------------------')
-    print(f'States:', end=' ')
-    for state in states:
-        print(f'{state.truth_value}{state.name}', end=', ')
 
-    print(f'\nActions: ', end=' ')
+    print('Init:', end=' ')
+    for state in init:
+        print('{0}{1}'.format(state.truth_value, state.name), end=', ')
+
+    print('\nGoal:', end=' ')
+    for state in goal:
+        print('{0}{1}'.format(state.truth_value, state.name), end=', ')
+
+
+    print('\nAll States:', end=' ')
+    for state in states:
+        print('{0}{1}'.format(state.truth_value, state.name), end=', ')
+
+    print('\nActions: ', end=' ')
     for action in actions:
-        print(f'{action.name}', end=', ')
+        print('{0}'.format(action.name), end=', ')
     print('\n############################')
 
     response = generate_planner(init, goal, actions) # run the graph-plan algorithm
     solution = response[0]
     limit = response[1]
 
-    print('\n#####')
-    print('------')
-    print('|Plan|')
-    print('------')
-    for i in range(0, limit):
-        print(f'layer {i}', end=': ')
-        for node in solution:
-            if not node.name.startswith('no-op') and node.type == 'action' and node.index == i:
-               print('{0}'.format(node.name), end=', ')
-        print('')
-    print('######')
+    if solution != None:
+        print('\n#####')
+        print('------')
+        print('|Plan|')
+        print('------')
+        for i in range(0, limit):
+            print('layer {0}'.format(i), end=': ')
+            for node in solution:
+                if not node.name.startswith('no-op') and node.type == 'action' and node.index == i:
+                   print('{0}'.format(node.name), end=', ')
+            print('')
+        print('######')
 
 else:
     print('illegal input')

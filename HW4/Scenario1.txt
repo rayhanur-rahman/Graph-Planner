@@ -1,0 +1,15 @@
+INIT:+Hungry,+CleanTable
+
+GOAL:-Hungry,+CleanTable,-Dinner
+
+ACTION:Cook
+PRECOND:+CleanTable
+EFFECT:+Dinner
+
+ACTION:Eat
+PRECOND:+Dinner,+Hungry
+EFFECT:-Hungry,-CleanTable,-Dinner
+
+ACTION:Clean
+PRECOND:-CleanTable
+EFFECT:+CleanTable

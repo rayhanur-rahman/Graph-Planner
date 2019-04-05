@@ -1,0 +1,185 @@
+############################
+----------------------------
+|List of States and Actions|
+----------------------------
+Init: -PacketAt(A), +CarAt(B), -CarAt(A), -PacketInCar, 
+Goal: +PacketAt(B), +CarAt(A), -CarAt(B), -PacketInCar, 
+All States: -PacketAt(A), +CarAt(B), -CarAt(A), -PacketInCar, +PacketAt(B), +CarAt(A), -CarAt(B), +PacketAt(A), +PacketInCar, 
+Actions:  Load, Drive(A,B), Drive(B,A), Produce, Discharge, 
+############################
+#################################################
+-------------------------------------------------
+|List of States, Actions and Mutex in each layer|
+-------------------------------------------------
+
+Layer 0:
+
+states:
+name: -PacketAt(A) | mutexes: | total: 0
+name: +CarAt(B) | mutexes: | total: 0
+name: -CarAt(A) | mutexes: | total: 0
+name: -PacketInCar | mutexes: | total: 0
+
+actions:
+name: no-op-0@-PacketAt(A) | mutexes: Produce, | total: 1
+name: no-op-0@+CarAt(B) | mutexes: Drive(B,A), | total: 1
+name: no-op-0@-CarAt(A) | mutexes: Drive(B,A), | total: 1
+name: no-op-0@-PacketInCar | mutexes: | total: 0
+name: Drive(B,A) | mutexes: no-op-0@+CarAt(B), no-op-0@-CarAt(A), | total: 2
+name: Produce | mutexes: no-op-0@-PacketAt(A), | total: 1
+********************************************
+
+Layer 1:
+
+states:
+name: -PacketAt(A) | mutexes: +PacketAt(A), | total: 1
+name: +CarAt(B) | mutexes: +CarAt(A), -CarAt(B), | total: 2
+name: -CarAt(A) | mutexes: +CarAt(A), -CarAt(B), | total: 2
+name: -PacketInCar | mutexes: | total: 0
+name: +CarAt(A) | mutexes: +CarAt(B), -CarAt(A), | total: 2
+name: -CarAt(B) | mutexes: +CarAt(B), -CarAt(A), | total: 2
+name: +PacketAt(A) | mutexes: -PacketAt(A), | total: 1
+
+actions:
+name: no-op-1@-PacketAt(A) | mutexes: no-op-1@+PacketAt(A), Load, Produce, | total: 3
+name: no-op-1@+CarAt(B) | mutexes: no-op-1@+CarAt(A), no-op-1@-CarAt(B), Load, Drive(A,B), Drive(B,A), | total: 5
+name: no-op-1@-CarAt(A) | mutexes: no-op-1@+CarAt(A), no-op-1@-CarAt(B), Load, Drive(A,B), Drive(B,A), | total: 5
+name: no-op-1@-PacketInCar | mutexes: Load, | total: 1
+name: no-op-1@+CarAt(A) | mutexes: no-op-1@+CarAt(B), no-op-1@-CarAt(A), Drive(A,B), Drive(B,A), | total: 4
+name: no-op-1@-CarAt(B) | mutexes: no-op-1@+CarAt(B), no-op-1@-CarAt(A), Drive(A,B), Drive(B,A), | total: 4
+name: no-op-1@+PacketAt(A) | mutexes: no-op-1@-PacketAt(A), Load, Produce, | total: 3
+name: Load | mutexes: no-op-1@-PacketAt(A), no-op-1@+CarAt(B), no-op-1@-CarAt(A), no-op-1@-PacketInCar, no-op-1@+PacketAt(A), Drive(A,B), Drive(B,A), Produce, | total: 8
+name: Drive(A,B) | mutexes: no-op-1@+CarAt(B), no-op-1@-CarAt(A), no-op-1@+CarAt(A), no-op-1@-CarAt(B), Load, Drive(B,A), | total: 6
+name: Drive(B,A) | mutexes: no-op-1@+CarAt(B), no-op-1@-CarAt(A), no-op-1@+CarAt(A), no-op-1@-CarAt(B), Load, Drive(A,B), | total: 6
+name: Produce | mutexes: no-op-1@-PacketAt(A), no-op-1@+PacketAt(A), Load, | total: 3
+********************************************
+
+Layer 2:
+
+states:
+name: -PacketAt(A) | mutexes: +PacketAt(A), | total: 1
+name: +CarAt(B) | mutexes: +CarAt(A), -CarAt(B), +PacketInCar, | total: 3
+name: -CarAt(A) | mutexes: +CarAt(A), -CarAt(B), +PacketInCar, | total: 3
+name: -PacketInCar | mutexes: +PacketInCar, | total: 1
+name: +CarAt(A) | mutexes: +CarAt(B), -CarAt(A), | total: 2
+name: -CarAt(B) | mutexes: +CarAt(B), -CarAt(A), | total: 2
+name: +PacketAt(A) | mutexes: -PacketAt(A), +PacketInCar, | total: 2
+name: +PacketInCar | mutexes: +CarAt(B), -CarAt(A), -PacketInCar, +PacketAt(A), | total: 4
+
+actions:
+name: no-op-2@-PacketAt(A) | mutexes: no-op-2@+PacketAt(A), Load, Produce, | total: 3
+name: no-op-2@+CarAt(B) | mutexes: no-op-2@+CarAt(A), no-op-2@-CarAt(B), no-op-2@+PacketInCar, Load, Drive(A,B), Drive(B,A), Discharge, | total: 7
+name: no-op-2@-CarAt(A) | mutexes: no-op-2@+CarAt(A), no-op-2@-CarAt(B), no-op-2@+PacketInCar, Load, Drive(A,B), Drive(B,A), Discharge, | total: 7
+name: no-op-2@-PacketInCar | mutexes: no-op-2@+PacketInCar, Load, Discharge, | total: 3
+name: no-op-2@+CarAt(A) | mutexes: no-op-2@+CarAt(B), no-op-2@-CarAt(A), Drive(A,B), Drive(B,A), Discharge, | total: 5
+name: no-op-2@-CarAt(B) | mutexes: no-op-2@+CarAt(B), no-op-2@-CarAt(A), Drive(A,B), Drive(B,A), Discharge, | total: 5
+name: no-op-2@+PacketAt(A) | mutexes: no-op-2@-PacketAt(A), no-op-2@+PacketInCar, Load, Produce, Discharge, | total: 5
+name: no-op-2@+PacketInCar | mutexes: no-op-2@+CarAt(B), no-op-2@-CarAt(A), no-op-2@-PacketInCar, no-op-2@+PacketAt(A), Load, Drive(B,A), Discharge, | total: 7
+name: Load | mutexes: no-op-2@-PacketAt(A), no-op-2@+CarAt(B), no-op-2@-CarAt(A), no-op-2@-PacketInCar, no-op-2@+PacketAt(A), no-op-2@+PacketInCar, Drive(A,B), Drive(B,A), Produce, Discharge, | total: 10
+name: Drive(A,B) | mutexes: no-op-2@+CarAt(B), no-op-2@-CarAt(A), no-op-2@+CarAt(A), no-op-2@-CarAt(B), Load, Drive(B,A), Discharge, | total: 7
+name: Drive(B,A) | mutexes: no-op-2@+CarAt(B), no-op-2@-CarAt(A), no-op-2@+CarAt(A), no-op-2@-CarAt(B), no-op-2@+PacketInCar, Load, Drive(A,B), Discharge, | total: 8
+name: Produce | mutexes: no-op-2@-PacketAt(A), no-op-2@+PacketAt(A), Load, | total: 3
+name: Discharge | mutexes: no-op-2@+CarAt(B), no-op-2@-CarAt(A), no-op-2@-PacketInCar, no-op-2@+CarAt(A), no-op-2@-CarAt(B), no-op-2@+PacketAt(A), no-op-2@+PacketInCar, Load, Drive(A,B), Drive(B,A), | total: 10
+********************************************
+
+Layer 3:
+
+states:
+name: -PacketAt(A) | mutexes: +PacketAt(A), | total: 1
+name: +CarAt(B) | mutexes: +CarAt(A), -CarAt(B), | total: 2
+name: -CarAt(A) | mutexes: +CarAt(A), -CarAt(B), | total: 2
+name: -PacketInCar | mutexes: +PacketInCar, | total: 1
+name: +CarAt(A) | mutexes: +CarAt(B), -CarAt(A), +PacketAt(B), | total: 3
+name: -CarAt(B) | mutexes: +CarAt(B), -CarAt(A), +PacketAt(B), | total: 3
+name: +PacketAt(A) | mutexes: -PacketAt(A), | total: 1
+name: +PacketInCar | mutexes: -PacketInCar, +PacketAt(B), | total: 2
+name: +PacketAt(B) | mutexes: +CarAt(A), -CarAt(B), +PacketInCar, | total: 3
+
+actions:
+name: no-op-3@-PacketAt(A) | mutexes: no-op-3@+PacketAt(A), Load, Produce, | total: 3
+name: no-op-3@+CarAt(B) | mutexes: no-op-3@+CarAt(A), no-op-3@-CarAt(B), Load, Drive(A,B), Drive(B,A), | total: 5
+name: no-op-3@-CarAt(A) | mutexes: no-op-3@+CarAt(A), no-op-3@-CarAt(B), Load, Drive(A,B), Drive(B,A), | total: 5
+name: no-op-3@-PacketInCar | mutexes: no-op-3@+PacketInCar, Load, Discharge, | total: 3
+name: no-op-3@+CarAt(A) | mutexes: no-op-3@+CarAt(B), no-op-3@-CarAt(A), no-op-3@+PacketAt(B), Drive(A,B), Drive(B,A), Discharge, | total: 6
+name: no-op-3@-CarAt(B) | mutexes: no-op-3@+CarAt(B), no-op-3@-CarAt(A), no-op-3@+PacketAt(B), Drive(A,B), Drive(B,A), Discharge, | total: 6
+name: no-op-3@+PacketAt(A) | mutexes: no-op-3@-PacketAt(A), Load, Produce, | total: 3
+name: no-op-3@+PacketInCar | mutexes: no-op-3@-PacketInCar, no-op-3@+PacketAt(B), Load, Discharge, | total: 4
+name: no-op-3@+PacketAt(B) | mutexes: no-op-3@+CarAt(A), no-op-3@-CarAt(B), no-op-3@+PacketInCar, Load, Drive(A,B), Discharge, | total: 6
+name: Load | mutexes: no-op-3@-PacketAt(A), no-op-3@+CarAt(B), no-op-3@-CarAt(A), no-op-3@-PacketInCar, no-op-3@+PacketAt(A), no-op-3@+PacketInCar, no-op-3@+PacketAt(B), Drive(A,B), Drive(B,A), Produce, Discharge, | total: 11
+name: Drive(A,B) | mutexes: no-op-3@+CarAt(B), no-op-3@-CarAt(A), no-op-3@+CarAt(A), no-op-3@-CarAt(B), no-op-3@+PacketAt(B), Load, Drive(B,A), Discharge, | total: 8
+name: Drive(B,A) | mutexes: no-op-3@+CarAt(B), no-op-3@-CarAt(A), no-op-3@+CarAt(A), no-op-3@-CarAt(B), Load, Drive(A,B), Discharge, | total: 7
+name: Produce | mutexes: no-op-3@-PacketAt(A), no-op-3@+PacketAt(A), Load, | total: 3
+name: Discharge | mutexes: no-op-3@-PacketInCar, no-op-3@+CarAt(A), no-op-3@-CarAt(B), no-op-3@+PacketInCar, no-op-3@+PacketAt(B), Load, Drive(A,B), Drive(B,A), | total: 8
+********************************************
+
+Layer 4:
+
+states:
+name: -PacketAt(A) | mutexes: +PacketAt(A), | total: 1
+name: +CarAt(B) | mutexes: +CarAt(A), -CarAt(B), | total: 2
+name: -CarAt(A) | mutexes: +CarAt(A), -CarAt(B), | total: 2
+name: -PacketInCar | mutexes: +PacketInCar, | total: 1
+name: +CarAt(A) | mutexes: +CarAt(B), -CarAt(A), | total: 2
+name: -CarAt(B) | mutexes: +CarAt(B), -CarAt(A), | total: 2
+name: +PacketAt(A) | mutexes: -PacketAt(A), | total: 1
+name: +PacketInCar | mutexes: -PacketInCar, +PacketAt(B), | total: 2
+name: +PacketAt(B) | mutexes: +PacketInCar, | total: 1
+
+actions:
+name: no-op-4@-PacketAt(A) | mutexes: no-op-4@+PacketAt(A), Load, Produce, | total: 3
+name: no-op-4@+CarAt(B) | mutexes: no-op-4@+CarAt(A), no-op-4@-CarAt(B), Load, Drive(A,B), Drive(B,A), | total: 5
+name: no-op-4@-CarAt(A) | mutexes: no-op-4@+CarAt(A), no-op-4@-CarAt(B), Load, Drive(A,B), Drive(B,A), | total: 5
+name: no-op-4@-PacketInCar | mutexes: no-op-4@+PacketInCar, Load, Discharge, | total: 3
+name: no-op-4@+CarAt(A) | mutexes: no-op-4@+CarAt(B), no-op-4@-CarAt(A), Drive(A,B), Drive(B,A), Discharge, | total: 5
+name: no-op-4@-CarAt(B) | mutexes: no-op-4@+CarAt(B), no-op-4@-CarAt(A), Drive(A,B), Drive(B,A), Discharge, | total: 5
+name: no-op-4@+PacketAt(A) | mutexes: no-op-4@-PacketAt(A), Load, Produce, | total: 3
+name: no-op-4@+PacketInCar | mutexes: no-op-4@-PacketInCar, no-op-4@+PacketAt(B), Load, Discharge, | total: 4
+name: no-op-4@+PacketAt(B) | mutexes: no-op-4@+PacketInCar, Discharge, | total: 2
+name: Load | mutexes: no-op-4@-PacketAt(A), no-op-4@+CarAt(B), no-op-4@-CarAt(A), no-op-4@-PacketInCar, no-op-4@+PacketAt(A), no-op-4@+PacketInCar, Drive(A,B), Drive(B,A), Produce, Discharge, | total: 10
+name: Drive(A,B) | mutexes: no-op-4@+CarAt(B), no-op-4@-CarAt(A), no-op-4@+CarAt(A), no-op-4@-CarAt(B), Load, Drive(B,A), Discharge, | total: 7
+name: Drive(B,A) | mutexes: no-op-4@+CarAt(B), no-op-4@-CarAt(A), no-op-4@+CarAt(A), no-op-4@-CarAt(B), Load, Drive(A,B), Discharge, | total: 7
+name: Produce | mutexes: no-op-4@-PacketAt(A), no-op-4@+PacketAt(A), Load, | total: 3
+name: Discharge | mutexes: no-op-4@-PacketInCar, no-op-4@+CarAt(A), no-op-4@-CarAt(B), no-op-4@+PacketInCar, no-op-4@+PacketAt(B), Load, Drive(A,B), Drive(B,A), | total: 8
+********************************************
+
+Layer 5:
+
+states:
+name: -PacketAt(A) | mutexes: +PacketAt(A), | total: 1
+name: +CarAt(B) | mutexes: +CarAt(A), -CarAt(B), | total: 2
+name: -CarAt(A) | mutexes: +CarAt(A), -CarAt(B), | total: 2
+name: -PacketInCar | mutexes: +PacketInCar, | total: 1
+name: +CarAt(A) | mutexes: +CarAt(B), -CarAt(A), | total: 2
+name: -CarAt(B) | mutexes: +CarAt(B), -CarAt(A), | total: 2
+name: +PacketAt(A) | mutexes: -PacketAt(A), | total: 1
+name: +PacketInCar | mutexes: -PacketInCar, | total: 1
+name: +PacketAt(B) | mutexes: | total: 0
+
+actions:
+name: no-op-5@-PacketAt(A) | mutexes: no-op-5@+PacketAt(A), Load, Produce, | total: 3
+name: no-op-5@+CarAt(B) | mutexes: no-op-5@+CarAt(A), no-op-5@-CarAt(B), Load, Drive(A,B), Drive(B,A), | total: 5
+name: no-op-5@-CarAt(A) | mutexes: no-op-5@+CarAt(A), no-op-5@-CarAt(B), Load, Drive(A,B), Drive(B,A), | total: 5
+name: no-op-5@-PacketInCar | mutexes: no-op-5@+PacketInCar, Load, Discharge, | total: 3
+name: no-op-5@+CarAt(A) | mutexes: no-op-5@+CarAt(B), no-op-5@-CarAt(A), Drive(A,B), Drive(B,A), Discharge, | total: 5
+name: no-op-5@-CarAt(B) | mutexes: no-op-5@+CarAt(B), no-op-5@-CarAt(A), Drive(A,B), Drive(B,A), Discharge, | total: 5
+name: no-op-5@+PacketAt(A) | mutexes: no-op-5@-PacketAt(A), Load, Produce, | total: 3
+name: no-op-5@+PacketInCar | mutexes: no-op-5@-PacketInCar, Load, Discharge, | total: 3
+name: no-op-5@+PacketAt(B) | mutexes: | total: 0
+name: Load | mutexes: no-op-5@-PacketAt(A), no-op-5@+CarAt(B), no-op-5@-CarAt(A), no-op-5@-PacketInCar, no-op-5@+PacketAt(A), no-op-5@+PacketInCar, Drive(A,B), Drive(B,A), Produce, Discharge, | total: 10
+name: Drive(A,B) | mutexes: no-op-5@+CarAt(B), no-op-5@-CarAt(A), no-op-5@+CarAt(A), no-op-5@-CarAt(B), Load, Drive(B,A), Discharge, | total: 7
+name: Drive(B,A) | mutexes: no-op-5@+CarAt(B), no-op-5@-CarAt(A), no-op-5@+CarAt(A), no-op-5@-CarAt(B), Load, Drive(A,B), Discharge, | total: 7
+name: Produce | mutexes: no-op-5@-PacketAt(A), no-op-5@+PacketAt(A), Load, | total: 3
+name: Discharge | mutexes: no-op-5@-PacketInCar, no-op-5@+CarAt(A), no-op-5@-CarAt(B), no-op-5@+PacketInCar, Load, Drive(A,B), Drive(B,A), | total: 7
+********************************************
+#################################################
+
+#####
+------
+|Plan|
+------
+layer 0: Produce, Drive(B,A), 
+layer 1: Load, 
+layer 2: Drive(A,B), 
+layer 3: Discharge, 
+layer 4: Drive(B,A), 
+######
