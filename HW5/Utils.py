@@ -24,7 +24,7 @@ def processInput(fileName):
 
     return data, attributes
 
-data = processInput('w.csv')[0]
+#data = processInput('w.csv')[0]
 
 def retrieveSet(data, attributeName):
     list = []
@@ -91,6 +91,58 @@ def getBestSplitCategorical(list, attributeName):
         chunks.append(chunk)
 
     bestSplit['averageEntropy'] = averageEntropy
+    return bestSplit, chunks
+
+def getBestSplitCategoricalLambdaAssociation(list, attributeName):
+    list.sort(key=lambda k: k[attributeName])
+    unique = retrieveSet(list, 'class')
+    ranges = retrieveSet(list, attributeName)
+
+    totalMatrix = [0] * len(unique)
+    for item in list:
+        for index in range(0, len(unique)):
+            if item['class'] == getFromSetByIndex(unique, index):
+                totalMatrix[index] = totalMatrix[index] + 1
+
+    probabilityIndexForAttributeValues = []
+
+    for item in ranges:
+        countMatrix = [0] * len(unique)
+        for element in list:
+            if element[attributeName] == item:
+                for index in range(0, len(unique)):
+                    if element['class'] == getFromSetByIndex(unique, index):
+                        countMatrix[index] = countMatrix[index] + 1
+        probabilityIndexForAttributeValues.append(countMatrix)
+
+    predictionError = 0
+    for index in range(0, len(ranges)):
+        for element in list:
+            if element[attributeName] == getFromSetByIndex(ranges, index):
+                classToPredict = getFromSetByIndex(unique, 0)
+                probability = probabilityIndexForAttributeValues[index][0]/sum(probabilityIndexForAttributeValues[index])
+                prediction = None
+                if probability > 0.5: prediction = True
+                else: prediction = False
+                if element['class'] == classToPredict:
+                    if not prediction: predictionError += 1
+                else:
+                    if prediction: predictionError += 1
+
+
+    numberOfPredictionErrorWhenAttributeIsIgnored = 1 - (totalMatrix[0]/sum(totalMatrix))
+    numberOfPredictionErrorWhenAttributeIsConsidered = predictionError/sum(totalMatrix)
+    _lambda = (numberOfPredictionErrorWhenAttributeIsIgnored - numberOfPredictionErrorWhenAttributeIsConsidered)/ (numberOfPredictionErrorWhenAttributeIsIgnored + .001)
+
+    bestSplit = {
+        'attribute': attributeName,
+        'value': None,
+        'entropy': 1 - _lambda,
+        'averageEntropy': 1 - _lambda
+    }
+
+    chunks = []
+
     return bestSplit, chunks
 
 def getBestSplitCategoricalGiniIndex(list, attributeName):
@@ -206,4 +258,4 @@ def calCulateFMeasure(predictioMatrix):
     precision = TP[1] / (TP[1] + FP[1] + .001)
     recall = TP[1] / (TP[1] + FN[1] + .001)
     f1score = (2 * precision * recall) / (precision + recall + .001)
-    return [accuracy, precision, recall, f1score]
+    return [TP[1], TN[1], FP[1], FN[1], accuracy, precision, recall, f1score]

@@ -16,10 +16,14 @@ class Node:
 
 
 def visitTree(node):
-
     # print(f'{node.name} ### {len(node.data)}')
+    isPureNode = False
 
-    if len(node.unprocessedAttributes) == 0:
+    for prob in node.probabilityIndex:
+        if prob == 1:
+            isPureNode = True
+
+    if len(node.unprocessedAttributes) == 0 or len(node.data) == 0 or isPureNode == True:
         numberOfClasses = Utils.retrieveSet(node.data, 'class')
         Utils.computeStatistics(node, numberOfClasses)
         return
@@ -30,7 +34,7 @@ def visitTree(node):
     splits = []
     for item in node.unprocessedAttributes:
         response = Utils.getBestSplitCategorical(node.data, item)
-        response = Utils.getBestSplitCategoricalGiniIndex(node.data, item)
+        # response = Utils.getBestSplitCategoricalLambdaAssociation(node.data, item)
         splits.append(response[0])
 
     splits.sort(key=lambda k: k['averageEntropy'])
