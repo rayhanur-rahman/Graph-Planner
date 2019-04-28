@@ -1,6 +1,6 @@
 import csv, sys, math
 
-def processInput(fileName):
+def processInput(fileName, target):
     file = open(fileName, 'r')
     csv_reader = csv.reader(file, delimiter=',')
 
@@ -22,16 +22,20 @@ def processInput(fileName):
             data.append(dictionary)
         index += 1
 
+    if target in attributes:
+        attributes.remove(target)
+
     return data, attributes
 
-#data = processInput('w.csv')[0]
 
+# return unique list, discarding duplicates
 def retrieveSet(data, attributeName):
     list = []
     for item in data:
         list.append(item[attributeName])
-    return set(list)
+    return sorted(set(list), reverse= True)
 
+# as set is not indexable. we need to iterate get the element in a particular index
 def getFromSetByIndex(set, index):
     count = 0
     for item in set:
@@ -40,68 +44,55 @@ def getFromSetByIndex(set, index):
         count = count + 1
     return
 
-def getBestSplitCategorical(list, attributeName):
+# calculate infogain using entropy
+def getBestAttributeEntropy(list, attributeName, target):
     list.sort(key=lambda k: k[attributeName])
-    unique = retrieveSet(list, 'class')
+    unique = retrieveSet(list, target)
     ranges = retrieveSet(list, attributeName)
 
     totalMatrix = [0] * len(unique)
     for item in list:
         for index in range(0, len(unique)):
-            if item['class'] == getFromSetByIndex(unique, index):
+            if item[target] == getFromSetByIndex(unique, index):
                 totalMatrix[index] = totalMatrix[index] + 1
 
     bestSplit = {
         'attribute' : attributeName,
-        'value' : None,
-        'entropy': sys.maxsize,
-        'averageEntropy': None
+        'infoLoss': None
     }
 
-    chunks = []
-
-    averageEntropy = 0
+    totalEntropy = 0
 
     for item in ranges:
         countMatrix = [0] * len(unique)
         for element in list:
             if element[attributeName] == item:
                 for index in range(0, len(unique)):
-                    if element['class'] == getFromSetByIndex(unique, index):
+                    if element[target] == getFromSetByIndex(unique, index):
                         countMatrix[index] = countMatrix[index] + 1
 
         entropy = 0
         total = sum(countMatrix)
         for index in range(0, len(unique)):
-            p = (countMatrix[index] + .001)/(total + .001)
+            p = (countMatrix[index] + .00001)/(total + .00001)
             if p == 1 and len(unique) == 1: entropy = entropy - 0
             else: entropy = entropy - p * math.log(p, len(unique))
 
-        if entropy < bestSplit['entropy']:
-            bestSplit['value'] = item
-            bestSplit['entropy'] = entropy
+        totalEntropy = totalEntropy + entropy * (total / len(list))
 
-        chunk = {
-            'attribute': attributeName,
-            'value': item,
-            'entropy': entropy
-        }
+    bestSplit['infoLoss'] = totalEntropy
+    return bestSplit
 
-        averageEntropy = averageEntropy + entropy * (total / len(list))
-        chunks.append(chunk)
-
-    bestSplit['averageEntropy'] = averageEntropy
-    return bestSplit, chunks
-
-def getBestSplitCategoricalLambdaAssociation(list, attributeName):
+# using categorical regression as the selection criteria
+def getBestAttributeRegression(list, attributeName, target):
     list.sort(key=lambda k: k[attributeName])
-    unique = retrieveSet(list, 'class')
+    unique = retrieveSet(list, target)
     ranges = retrieveSet(list, attributeName)
 
     totalMatrix = [0] * len(unique)
     for item in list:
         for index in range(0, len(unique)):
-            if item['class'] == getFromSetByIndex(unique, index):
+            if item[target] == getFromSetByIndex(unique, index):
                 totalMatrix[index] = totalMatrix[index] + 1
 
     probabilityIndexForAttributeValues = []
@@ -111,7 +102,7 @@ def getBestSplitCategoricalLambdaAssociation(list, attributeName):
         for element in list:
             if element[attributeName] == item:
                 for index in range(0, len(unique)):
-                    if element['class'] == getFromSetByIndex(unique, index):
+                    if element[target] == getFromSetByIndex(unique, index):
                         countMatrix[index] = countMatrix[index] + 1
         probabilityIndexForAttributeValues.append(countMatrix)
 
@@ -124,7 +115,7 @@ def getBestSplitCategoricalLambdaAssociation(list, attributeName):
                 prediction = None
                 if probability > 0.5: prediction = True
                 else: prediction = False
-                if element['class'] == classToPredict:
+                if element[target] == classToPredict:
                     if not prediction: predictionError += 1
                 else:
                     if prediction: predictionError += 1
@@ -132,74 +123,55 @@ def getBestSplitCategoricalLambdaAssociation(list, attributeName):
 
     numberOfPredictionErrorWhenAttributeIsIgnored = 1 - (totalMatrix[0]/sum(totalMatrix))
     numberOfPredictionErrorWhenAttributeIsConsidered = predictionError/sum(totalMatrix)
-    _lambda = (numberOfPredictionErrorWhenAttributeIsIgnored - numberOfPredictionErrorWhenAttributeIsConsidered)/ (numberOfPredictionErrorWhenAttributeIsIgnored + .001)
+    _lambda = (numberOfPredictionErrorWhenAttributeIsIgnored - numberOfPredictionErrorWhenAttributeIsConsidered)/ (numberOfPredictionErrorWhenAttributeIsIgnored + .00001)
 
     bestSplit = {
         'attribute': attributeName,
-        'value': None,
-        'entropy': 1 - _lambda,
-        'averageEntropy': 1 - _lambda
+        'infoLoss': 1 - _lambda
     }
 
-    chunks = []
+    return bestSplit
 
-    return bestSplit, chunks
-
-def getBestSplitCategoricalGiniIndex(list, attributeName):
+def getBestAttributeGini(list, attributeName, target):
     list.sort(key=lambda k: k[attributeName])
-    unique = retrieveSet(list, 'class')
+    unique = retrieveSet(list, target)
     ranges = retrieveSet(list, attributeName)
 
     totalMatrix = [0] * len(unique)
     for item in list:
         for index in range(0, len(unique)):
-            if item['class'] == getFromSetByIndex(unique, index):
+            if item[target] == getFromSetByIndex(unique, index):
                 totalMatrix[index] = totalMatrix[index] + 1
 
     bestSplit = {
         'attribute' : attributeName,
-        'value' : None,
-        'entropy': sys.maxsize,
-        'averageEntropy': None
+        'infoLoss': None
     }
 
-    chunks = []
-
-    averageEntropy = 1
+    totalGini = 1
 
     for item in ranges:
         countMatrix = [0] * len(unique)
         for element in list:
             if element[attributeName] == item:
                 for index in range(0, len(unique)):
-                    if element['class'] == getFromSetByIndex(unique, index):
+                    if element[target] == getFromSetByIndex(unique, index):
                         countMatrix[index] = countMatrix[index] + 1
 
-        entropy = 0
+        gini = 0
         total = sum(countMatrix)
         for index in range(0, len(unique)):
-            p = (countMatrix[index] + .001)/(total + .001)
-            if p == 1 and len(unique) == 1: entropy = entropy - 0
-            else: entropy = entropy - p * p
+            p = (countMatrix[index] + .00001)/(total + .00001)
+            if p == 1 and len(unique) == 1: gini = gini - 0
+            else: gini = gini - p * p
 
-        if entropy < bestSplit['entropy']:
-            bestSplit['value'] = item
-            bestSplit['entropy'] = entropy
+        totalGini = totalGini - gini
 
-        chunk = {
-            'attribute': attributeName,
-            'value': item,
-            'entropy': entropy
-        }
+    bestSplit['infoLoss'] = totalGini
+    return bestSplit
 
-        averageEntropy = averageEntropy - entropy
-        chunks.append(chunk)
-
-    bestSplit['averageEntropy'] = averageEntropy
-    return bestSplit, chunks
-
-
-def computeStatistics(node, numberOfClasses):
+# calculate the ratio of class = 0 and class = 1 of all the datasets in a node
+def computeStatistics(node, numberOfClasses, target):
     classMatrix = [''] * len(numberOfClasses)
     probabilityIndex = [0] * len(numberOfClasses)
     classMatrixIndex = 0
@@ -209,16 +181,17 @@ def computeStatistics(node, numberOfClasses):
     totalMatrix = [0] * len(numberOfClasses)
     for item in node.data:
         for index in range(0, len(numberOfClasses)):
-            if item['class'] == getFromSetByIndex(numberOfClasses, index):
+            if item[target] == getFromSetByIndex(numberOfClasses, index):
                 totalMatrix[index] = totalMatrix[index] + 1
     total = sum(totalMatrix)
     for index in range(0, len(probabilityIndex)):
-        probabilityIndex[index] = (totalMatrix[index] + .001) / (total + .001)
+        probabilityIndex[index] = (totalMatrix[index] + .00001) / (total + .00001)
     node.classIndex = classMatrix
     node.probabilityIndex = probabilityIndex
     return
 
-def calCulateFMeasure(predictioMatrix):
+# calculate confusion matrix, recall , precision and f-measure
+def calculatePerformance(predictioMatrix):
     classes = []
     predictedClasses = []
     outcome = []
@@ -227,7 +200,7 @@ def calCulateFMeasure(predictioMatrix):
         predictedClasses.append(item[1])
         outcome.append(item[2])
 
-    uniqueClasses = set(classes)
+    uniqueClasses = sorted(set(classes), reverse= True)
 
     TP = [0] * len(uniqueClasses)
     TN = [0] * len(uniqueClasses)
@@ -254,8 +227,17 @@ def calCulateFMeasure(predictioMatrix):
                 FN[uniqueClassIndex] += 1
 
 
-    accuracy = (TP[1] + TN[1]) / (TP[1] + FP[1] + TN[1] + FN[1] + .001)
-    precision = TP[1] / (TP[1] + FP[1] + .001)
-    recall = TP[1] / (TP[1] + FN[1] + .001)
-    f1score = (2 * precision * recall) / (precision + recall + .001)
-    return [TP[1], TN[1], FP[1], FN[1], accuracy, precision, recall, f1score]
+    accuracy = (TP[0] + TN[0]) / (TP[0] + FP[0] + TN[0] + FN[0] + .00001)
+    precision = TP[0] / (TP[0] + FP[0] + .00001)
+    recall = TP[0] / (TP[0] + FN[0] + .00001)
+    f1score = (2 * precision * recall) / (precision + recall + .00001)
+    return {
+        'true positive': TP[0],
+        'true negative': TN[0],
+        'false positive': FP[0],
+        'false negative': FN[0],
+        'accuracy': accuracy,
+        'precision': precision,
+        'recall': recall,
+        'f-measure': f1score
+    }
